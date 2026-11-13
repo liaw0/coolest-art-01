@@ -272,6 +272,16 @@ def draw_jellyfish(cv, rng):
 
     cv.fill_ellipse_rows(cx, cy, rx, ry, bell_row)
 
+    # Warm inner glow low in the bell: layered translucent magenta over the
+    # bell's own gradient, so the bell reads luminous at its base and ties
+    # visually into the magenta tentacles below.
+    gy = cy + int(ry * 0.42)
+    for fr, al in ((1.00, 0.05), (0.75, 0.06), (0.50, 0.07)):
+        cv.fill_ellipse_rows(
+            cx, gy, int(150 * fr), int(64 * fr),
+            lambda y, a=al: blend((255, 110, 210), bell_row(y), a),
+        )
+
     # Inner glow: soft highlight near the top centre of the bell.
     cv.fill_ellipse(cx - 20, cy - 58, 96, 50, (212, 242, 255))
     cv.fill_ellipse(cx - 20, cy - 54, 58, 30, (238, 250, 255))
@@ -357,9 +367,10 @@ def main():
     cv = Canvas(W, H)
     draw_sky(cv)
     draw_stars(cv, rng)
-    # Two small distant jellyfish for depth, left and right.
-    draw_small_jellyfish(cv, 168, 210, 52, (53, 224, 255), 0.55)
-    draw_small_jellyfish(cv, 872, 168, 40, (255, 79, 216), 0.5)
+    # Two small distant jellyfish for depth, left and right. Alpha is high
+    # so they read as glowing companions, not grey smudges, at small size.
+    draw_small_jellyfish(cv, 168, 210, 52, (53, 224, 255), 0.85)
+    draw_small_jellyfish(cv, 872, 168, 40, (255, 79, 216), 0.80)
     draw_jellyfish(cv, rng)
     draw_city(cv, rng)
     vignette(cv)
